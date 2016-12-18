@@ -7,10 +7,7 @@ import (
 )
 
 type room struct {
-	// incoming messages that should be forwarded to the other clients
 	forward chan []byte
-
-	// safely add and remove clients from the clients map
 	join chan *Client
 	leave chan *Client
 	clients map[*Client]bool
@@ -40,9 +37,6 @@ func newRoom() *room {
 		leave: make(chan *Client),
 	}
 }
-/*it will only run one  block of CASE code at a time;
-our r.clients map is only ever modified by one thing at a time
-*/
 
 const(
 	socketBufferSize  = 1024
