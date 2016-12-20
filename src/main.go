@@ -34,8 +34,8 @@ The security key is used when creating the hash in a way that it is almost impos
 func main(){
 	gomniauth.SetSecurityKey("123456789")
 	gomniauth.WithProviders(
-		github.New("9536371b7bd0e5dba76e", "8b1cf566843074c98c89b911b3ab55bdc9a44d94","http://localhost:8080/auth/ callback/github"),
-		google.New("239445132641-ls2a8hbmedjeu0s5i1ceb9se5beglnfg.apps.googleusercontent.com", "OH5y-7Qtrc9FdbO1obyZix3G", "http://localhost:8080/auth/ callback/google"),
+		github.New("9536371b7bd0e5dba76e", "8b1cf566843074c98c89b911b3ab55bdc9a44d94","http://localhost:8080/auth/callback/github"),
+		google.New("239445132641-ls2a8hbmedjeu0s5i1ceb9se5beglnfg.apps.googleusercontent.com", "OH5y-7Qtrc9FdbO1obyZix3G", "http://localhost:8080/auth/callback/google"),
 	)
 
 	r := newRoom()

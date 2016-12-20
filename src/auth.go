@@ -5,6 +5,8 @@ import (
 	"strings"
 	"log"
 	"fmt"
+	"github.com/stretchr/gomniauth"
+	"github.com/stretchr/objx"
 )
 
 type authHandler struct {
@@ -32,7 +34,45 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	provider := segs[3]
 	switch action {
 		case "login":
-			log.Println("TODO handle login for ", provider)
+			provider, err := gomniauth.Provider(provider) //get the provider object that matches the object specified in the URL (such as google or github)
+			if err != nil{
+				log.Fatalln("Error with trying to get provider ", provider, err)
+			}
+
+			loginURL, err := provider.GetBeginAuthURL(nil, nil) // get the location where we must send users in order to start the authentication process
+			if err != nil{
+				log.Fatalln("Error with trying to GetBeginAuthURL for ", provider, err)
+			}
+
+			w.Header().Set("Location", loginURL)
+			w.WriteHeader(http.StatusTemporaryRedirect)
+		case "callback":
+			provider, err := gomniauth.Provider(provider)
+			if err != nil{
+				log.Fatalln("Error with trying to get provider ", provider, err)
+			}
+
+			creds, err := provider.CompleteAuth(objx.MustFromURLQuery(r.URL.RawQuery))
+			if err != nil{
+				log.Fatalln("Error with trying to complete auth ", provider, err)
+			}
+
+			user, err := provider.GetUser(creds)
+			if err != nil{
+				log.Fatalln("Error with trying to get user ", provider, err)
+			}
+
+			authCookieValue := objx.New(map[string]interface{}{
+				"name": user.Name(),
+			}).MustBase64()
+
+			http.SetCookie(w, &http.Cookie{
+				Name: "auth",
+				Value: authCookieValue,
+				Path: "/",
+			})
+			w.Header()["Location"] = []string{"/chat"}
+			w.WriteHeader(http.StatusTemporaryRedirect)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprintf(w, "Action %s is not supported", action)
